@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Terminal Widget Template -->
+    <t t-name="developer_terminal.Terminal">
+        <div class="developer-terminal-container">
+            <div class="terminal-header">
+                <h2>Developer Terminal</h2>
+                <p class="help-text">Execute shell commands or Python code. Press Ctrl+Enter to execute.</p>
+            </div>
+
+            <div class="terminal-controls">
+                <div class="terminal-type-selector">
+                    <label>
+                        <input type="radio" name="commandType" value="shell"
+                               t-model="state.commandType" checked="checked"/>
+                        <span>Shell Command</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="commandType" value="python"
+                               t-model="state.commandType"/>
+                        <span>Python Code</span>
+                    </label>
+                </div>
+
+                <div class="terminal-input-area">
+                    <label>Command Input:</label>
+                    <textarea class="terminal-textarea"
+                              t-ref="commandInput"
+                              t-model="state.command"
+                              t-on-keydown="onKeyDown"
+                              placeholder="Enter your command here..."
+                              t-att-disabled="state.isExecuting"/>
+                </div>
+
+                <div class="terminal-actions">
+                    <button class="terminal-btn terminal-btn-primary"
+                            t-on-click="executeCommand"
+                            t-att-disabled="state.isExecuting">
+                        <i class="fa fa-play"/> Execute
+                    </button>
+                    <button class="terminal-btn terminal-btn-secondary"
+                            t-on-click="clearTerminal"
+                            t-att-disabled="state.isExecuting">
+                        <i class="fa fa-eraser"/> Clear
+                    </button>
+                </div>
+            </div>
+
+            <div class="terminal-output-area">
+                <label>Output:</label>
+                <div class="terminal-output" t-ref="outputArea">
+                    <t t-esc="state.output"/>
+                </div>
+            </div>
+
+            <div class="terminal-output-area" t-if="state.errorOutput">
+                <label>Error Output:</label>
+                <div class="terminal-output terminal-error-output">
+                    <t t-esc="state.errorOutput"/>
+                </div>
+            </div>
+
+            <div class="terminal-history" t-if="state.history.length > 0">
+                <h3>Recent Commands</h3>
+                <div class="history-list">
+                    <t t-foreach="state.history.slice(0, 20)" t-as="item" t-key="item.id">
+                        <div class="history-item"
+                             t-att-class="item.state"
+                             t-on-click="() => this.loadFromHistory(item)">
+                            <div class="history-item-header">
+                                <span class="history-item-type">
+                                    <t t-esc="item.command_type"/>
+                                </span>
+                                <span class="history-item-date">
+                                    <t t-esc="item.create_date"/>
+                                </span>
+                            </div>
+                            <div class="history-item-command">
+                                <t t-esc="item.command"/>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <!-- Environment Info Template -->
+    <t t-name="developer_terminal.EnvironmentInfo">
+        <div class="env-info-container">
+            <div class="terminal-header">
+                <h2>Environment Information</h2>
+                <p class="help-text">System and environment details for this Odoo installation.</p>
+            </div>
+
+            <t t-if="state.isLoading">
+                <div class="loading-spinner">
+                    <div class="spinner"/>
+                    <p style="margin-top: 20px;">Loading environment information...</p>
+                </div>
+            </t>
+
+            <t t-if="!state.isLoading and state.info">
+                <!-- Python Info -->
+                <div class="info-section">
+                    <h3>Python Environment</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Python Version</span>
+                            <span class="info-value"><t t-esc="state.info.python_version"/></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Python Executable</span>
+                            <span class="info-value"><t t-esc="state.info.python_executable"/></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Odoo Info -->
+                <div class="info-section">
+                    <h3>Odoo Information</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Odoo Version</span>
+                            <span class="info-value"><t t-esc="state.info.odoo_version"/></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OS Info -->
+                <div class="info-section">
+                    <h3>Operating System</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">System</span>
+                            <span class="info-value"><t t-esc="state.info.os_info.system"/></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Release</span>
+                            <span class="info-value"><t t-esc="state.info.os_info.release"/></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Machine</span>
+                            <span class="info-value"><t t-esc="state.info.os_info.machine"/></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Installed Packages -->
+                <div class="info-section">
+                    <h3>Installed Packages (Top 50)</h3>
+                    <p class="help-text">Total packages: <t t-esc="state.info.total_packages"/></p>
+                    <table class="packages-table">
+                        <thead>
+                            <tr>
+                                <th>Package Name</th>
+                                <th>Version</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="state.info.packages.slice(0, 50)" t-as="pkg" t-key="pkg.name">
+                                <tr>
+                                    <td><t t-esc="pkg.name"/></td>
+                                    <td><t t-esc="pkg.version"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Terminal Config -->
+                <div class="info-section">
+                    <h3>Terminal Configuration</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Python Execution</span>
+                            <span class="info-value">
+                                <span t-if="state.info.terminal_config.enable_python_exec"
+                                      class="badge badge-success">Enabled</span>
+                                <span t-else="" class="badge badge-danger">Disabled</span>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Command Timeout</span>
+                            <span class="info-value"><t t-esc="state.info.terminal_config.timeout"/> seconds</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Max Output Size</span>
+                            <span class="info-value"><t t-esc="(state.info.terminal_config.max_output_size / 1024).toFixed(0)"/> KB</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Log Retention</span>
+                            <span class="info-value"><t t-esc="state.info.terminal_config.log_retention_days"/> days</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Restart Odoo Section -->
+                <div class="info-section" style="background-color: #fff3cd; border-left: 4px solid #dc3545;">
+                    <h3 style="color: #721c24;">
+                        <i class="fa fa-power-off"/> Restart Odoo Service
+                    </h3>
+                    <p class="help-text">
+                        <i class="fa fa-exclamation-triangle"/>
+                        <strong>Warning:</strong> Restarting Odoo will disconnect all users temporarily.
+                    </p>
+
+                    <div style="margin-top: 20px; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h4 style="margin-top: 0;">
+                            <i class="fa fa-shield"/> Restart Odoo Service
+                        </h4>
+                        <p style="color: #6c757d; font-size: 14px;">
+                            <strong>For System Install:</strong> Provide sudo credentials to restart the Odoo service.<br/>
+                            <strong>For Docker:</strong> Click button to restart Odoo process (no credentials needed).
+                        </p>
+
+                        <div style="display: grid; gap: 15px; max-width: 500px; margin-top: 20px;">
+                            <div>
+                                <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #495057;">
+                                    <i class="fa fa-user"/> Username (optional for Docker)
+                                </label>
+                                <input type="text"
+                                       t-model="state.restartUsername"
+                                       placeholder="Leave empty for Docker, enter for system install"
+                                       style="width: 100%; padding: 10px; border: 2px solid #ced4da; border-radius: 4px; font-size: 14px;"/>
+                                <small style="color: #6c757d;">Required only for system installations</small>
+                            </div>
+
+                            <div>
+                                <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #495057;">
+                                    <i class="fa fa-lock"/> Password (optional for Docker)
+                                </label>
+                                <input type="password"
+                                       t-model="state.restartPassword"
+                                       placeholder="Leave empty for Docker, enter for system install"
+                                       style="width: 100%; padding: 10px; border: 2px solid #ced4da; border-radius: 4px; font-size: 14px;"/>
+                                <small style="color: #6c757d;">Required only for system installations</small>
+                            </div>
+
+                            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <button class="terminal-btn terminal-btn-danger"
+                                        t-on-click="restartOdooWithCredentials"
+                                        style="flex: 1; padding: 15px; font-size: 16px;">
+                                    <i class="fa fa-refresh"/> Restart Odoo Now
+                                </button>
+                                <button class="terminal-btn terminal-btn-secondary"
+                                        t-on-click="clearRestartForm"
+                                        style="padding: 15px;">
+                                    <i class="fa fa-eraser"/> Clear
+                                </button>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; padding: 15px; background-color: #d1ecf1; border-left: 4px solid #17a2b8; border-radius: 4px;">
+                            <h5 style="margin: 0 0 10px 0; color: #0c5460;">
+                                <i class="fa fa-info-circle"/> How it works:
+                            </h5>
+                            <ul style="margin: 0; padding-left: 20px; color: #0c5460;">
+                                <li><strong>Docker:</strong> Terminates Odoo process - Docker automatically restarts the container</li>
+                                <li><strong>System:</strong> Uses sudo systemctl/service with provided credentials</li>
+                                <li><strong>Auto-Reload:</strong> Page refreshes automatically in 3 seconds</li>
+                                <li><strong>Fully Automatic:</strong> No manual intervention needed for restart</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other Actions -->
+                <div class="info-section">
+                    <h3><i class="fa fa-cogs"/> Other Actions</h3>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="terminal-btn terminal-btn-secondary"
+                                t-on-click="clearOldLogs">
+                            <i class="fa fa-trash"/> Clear Old Logs
+                        </button>
+                        <button class="terminal-btn terminal-btn-primary"
+                                t-on-click="loadEnvironmentInfo">
+                            <i class="fa fa-sync"/> Refresh Info
+                        </button>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+
+    <!-- Addon Uploader Template -->
+    <t t-name="developer_terminal.AddonUploader">
+        <div class="developer-terminal-container">
+            <div class="terminal-header">
+                <h2>Addon Uploader</h2>
+                <p class="help-text">Upload custom Odoo addons (.zip files). The addon will be extracted to custom_addons directory.</p>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="info-section">
+                <h3><i class="fa fa-upload"/> Upload Addon</h3>
+                <div style="margin-top: 20px;">
+                    <div class="package-input-group" style="flex-direction: column; align-items: stretch;">
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="file"
+                                   accept=".zip"
+                                   t-on-change="onFileSelected"
+                                   style="flex: 1; padding: 10px; border: 2px solid #ced4da; border-radius: 4px;"/>
+                            <button class="terminal-btn terminal-btn-primary"
+                                    t-on-click="uploadAddon"
+                                    t-att-disabled="state.isUploading || !state.selectedFile">
+                                <i class="fa fa-cloud-upload"/> Upload
+                            </button>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div t-if="state.isUploading" style="margin-top: 15px;">
+                            <div style="background-color: #e9ecef; border-radius: 4px; height: 30px; position: relative; overflow: hidden;">
+                                <div style="background-color: #28a745; height: 100%; transition: width 0.3s;"
+                                     t-att-style="'width: ' + state.uploadProgress + '%'">
+                                </div>
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 600; color: #000;">
+                                    <t t-esc="state.uploadProgress"/>%
+                                </div>
+                            </div>
+                            <p style="text-align: center; margin-top: 10px; color: #28a745;">
+                                <i class="fa fa-spinner fa-spin"/> Uploading and extracting addon...
+                            </p>
+                        </div>
+
+                        <!-- Instructions -->
+                        <div style="margin-top: 20px; padding: 15px; background-color: #d1ecf1; border-left: 4px solid #17a2b8; border-radius: 4px;">
+                            <h4 style="margin-top: 0; color: #0c5460;">
+                                <i class="fa fa-info-circle"/> Instructions:
+                            </h4>
+                            <ol style="margin: 10px 0; padding-left: 20px;">
+                                <li>Prepare your addon as a .zip file</li>
+                                <li>The zip should contain the addon folder with __manifest__.py inside</li>
+                                <li>Click "Choose File" and select your addon zip</li>
+                                <li>Click "Upload" to extract to custom_addons directory</li>
+                                <li>After upload, restart Odoo or update the module list in Apps</li>
+                            </ol>
+                        </div>
+
+                        <!-- Example Structure -->
+                        <div style="margin-top: 15px; padding: 15px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+                            <h4 style="margin-top: 0; color: #856404;">
+                                <i class="fa fa-folder-open"/> Expected Zip Structure:
+                            </h4>
+                            <div style="background-color: #000; color: #0f0; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px;">
+                                my_addon.zip<br/>
+                                └── my_addon/<br/>
+                                    ├── __init__.py<br/>
+                                    ├── __manifest__.py<br/>
+                                    ├── models/<br/>
+                                    ├── views/<br/>
+                                    └── ...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload History -->
+            <div class="info-section" style="margin-top: 30px;">
+                <h3><i class="fa fa-history"/> Upload History</h3>
+                <div style="margin-top: 15px;">
+                    <table class="packages-table" t-if="state.uploadHistory.length > 0">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Module Name</th>
+                                <th>Filename</th>
+                                <th>Size</th>
+                                <th>Status</th>
+                                <th>Uploaded By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="state.uploadHistory" t-as="upload" t-key="upload.id">
+                                <tr>
+                                    <td><t t-esc="upload.create_date"/></td>
+                                    <td><strong><t t-esc="upload.name"/></strong></td>
+                                    <td><t t-esc="upload.filename"/></td>
+                                    <td><t t-esc="formatFileSize(upload.file_size)"/></td>
+                                    <td>
+                                        <span t-if="upload.state === 'success'" class="badge badge-success">Success</span>
+                                        <span t-elif="upload.state === 'failed'" class="badge badge-danger">Failed</span>
+                                        <span t-else="" class="badge badge-warning"><t t-esc="upload.state"/></span>
+                                    </td>
+                                    <td><t t-esc="upload.user"/></td>
+                                </tr>
+                                <tr t-if="upload.error_message">
+                                    <td colspan="6" style="background-color: #f8d7da; color: #721c24; padding: 10px;">
+                                        <strong>Error:</strong> <t t-esc="upload.error_message"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                    <p t-else="" style="text-align: center; color: #6c757d; padding: 20px;">
+                        <i class="fa fa-inbox"/> No upload history yet. Upload your first addon above!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Restart Odoo After Upload -->
+            <div class="info-section" style="background-color: #fff3cd; border-left: 4px solid #dc3545;">
+                <h3 style="color: #721c24;">
+                    <i class="fa fa-power-off"/> Restart Odoo After Upload
+                </h3>
+                <p class="help-text">
+                    <i class="fa fa-exclamation-triangle"/>
+                    <strong>Recommended:</strong> Restart Odoo to make the uploaded addon available.
+                </p>
+
+                <div style="margin-top: 20px; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <h4 style="margin-top: 0;">
+                        <i class="fa fa-shield"/> Restart Odoo Service
+                    </h4>
+                    <p style="color: #6c757d; font-size: 14px;">
+                        <strong>For System Install:</strong> Provide sudo credentials to restart the Odoo service.<br/>
+                        <strong>For Docker:</strong> Click button to restart Odoo process (no credentials needed).
+                    </p>
+
+                    <div style="display: grid; gap: 15px; max-width: 500px; margin-top: 20px;">
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #495057;">
+                                <i class="fa fa-user"/> Username (optional for Docker)
+                            </label>
+                            <input type="text"
+                                   t-model="state.restartUsername"
+                                   placeholder="Leave empty for Docker, enter for system install"
+                                   style="width: 100%; padding: 10px; border: 2px solid #ced4da; border-radius: 4px; font-size: 14px;"/>
+                            <small style="color: #6c757d;">Required only for system installations</small>
+                        </div>
+
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #495057;">
+                                <i class="fa fa-lock"/> Password (optional for Docker)
+                            </label>
+                            <input type="password"
+                                   t-model="state.restartPassword"
+                                   placeholder="Leave empty for Docker, enter for system install"
+                                   style="width: 100%; padding: 10px; border: 2px solid #ced4da; border-radius: 4px; font-size: 14px;"/>
+                            <small style="color: #6c757d;">Required only for system installations</small>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <button class="terminal-btn terminal-btn-danger"
+                                    t-on-click="restartOdooWithCredentials"
+                                    style="flex: 1; padding: 15px; font-size: 16px;">
+                                <i class="fa fa-refresh"/> Restart Odoo Now
+                            </button>
+                            <button class="terminal-btn terminal-btn-secondary"
+                                    t-on-click="clearRestartForm"
+                                    style="padding: 15px;">
+                                <i class="fa fa-eraser"/> Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; padding: 15px; background-color: #d1ecf1; border-left: 4px solid #17a2b8; border-radius: 4px;">
+                        <h5 style="margin: 0 0 10px 0; color: #0c5460;">
+                            <i class="fa fa-info-circle"/> How it works:
+                        </h5>
+                        <ul style="margin: 0; padding-left: 20px; color: #0c5460;">
+                            <li><strong>Docker:</strong> Terminates Odoo process - Docker automatically restarts the container</li>
+                            <li><strong>System:</strong> Uses sudo systemctl/service with provided credentials</li>
+                            <li><strong>Auto-Reload:</strong> Page refreshes automatically in 3 seconds</li>
+                            <li><strong>Fully Automatic:</strong> No manual intervention needed for restart</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

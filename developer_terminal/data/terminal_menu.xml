@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Main Menu Item under Settings -->
+        <menuitem
+            id="menu_developer_terminal_root"
+            name="Command Center"
+            parent="base.menu_administration"
+            groups="base.group_system"
+            sequence="100"/>
+
+        <!-- Terminal Submenu -->
+        <menuitem
+            id="menu_developer_terminal"
+            name="Terminal"
+            parent="menu_developer_terminal_root"
+            action="action_developer_terminal"
+            sequence="10"/>
+
+        <!-- Command History Submenu -->
+        <menuitem
+            id="menu_terminal_logs"
+            name="Command History"
+            parent="menu_developer_terminal_root"
+            action="action_terminal_logs"
+            sequence="20"/>
+
+
+        <!-- Environment Info Submenu -->
+        <menuitem
+            id="menu_environment_info"
+            name="Environment Info"
+            parent="menu_developer_terminal_root"
+            action="action_environment_info"
+            sequence="40"/>
+
+        <!-- Addon Uploader Submenu -->
+        <menuitem
+            id="menu_addon_uploader"
+            name="Addon Uploader"
+            parent="menu_developer_terminal_root"
+            action="action_addon_uploader"
+            sequence="50"/>
+
+    </data>
+</odoo>
