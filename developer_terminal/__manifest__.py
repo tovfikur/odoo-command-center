@@ -166,6 +166,7 @@ Compatible: Odoo 16 & 17 (Community & Enterprise)
     'price': 13.97,
     'currency': 'USD',
     'support': 'support@kendroo.io',
+    'images': ['static/description/icon.png'],
     'depends': ['base', 'web'],
     'data': [
         'security/terminal_security.xml',
