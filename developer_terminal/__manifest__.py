@@ -167,6 +167,7 @@ Compatible: Odoo 16 & 17 (Community & Enterprise)
     'currency': 'USD',
     'support': 'support@kendroo.io',
     'images': [
+        'static/description/banner.gif',
         'static/description/banner.png',
         'static/description/main_screenshot.png',
         'static/description/screenshot.png',
