@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+# License OPL-1.0 or later (https://www.odoo.com/documentation/16.0/legal/licenses.html)
+# Copyright (c) 2025 Tovfikur Rahman (kendroo.io)
+
 {
     'name': 'Odoo Command Center',
-    'version': '17.0.1.0.0',
+    'version': '1.0.0',
     'category': 'Tools',
-    'summary': 'The Ultimate Command & Control Interface — Right Inside Odoo. Manage. Debug. Deploy. All without SSH.',
+    'summary': 'Execute terminal commands, install libraries, upload addons, and restart Odoo — all from the web interface.',
     'description': """
 Odoo Command Center
 ===================
@@ -157,9 +160,12 @@ License: LGPL-3
 Author: Developer
 Compatible: Odoo 16 & 17 (Community & Enterprise)
     """,
-    'author': 'Developer',
-    'website': 'https://www.odoo.com',
-    'license': 'LGPL-3',
+    'author': 'Tovfikur Rahman',
+    'website': 'https://kendroo.io',
+    'license': 'OPL-1',
+    'price': 13.97,
+    'currency': 'USD',
+    'support': 'support@kendroo.io',
     'depends': ['base', 'web'],
     'data': [
         'security/terminal_security.xml',
@@ -176,6 +182,6 @@ Compatible: Odoo 16 & 17 (Community & Enterprise)
         ],
     },
     'installable': True,
-    'application': False,
+    'application': True,
     'auto_install': False,
 }
