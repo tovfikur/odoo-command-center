@@ -6,7 +6,7 @@
     'name': 'Odoo Command Center',
     'version': '1.0.0',
     'category': 'Tools',
-    'summary': 'Execute terminal commands, install libraries, upload addons, and restart Odoo — all from the web interface.',
+    'summary': 'FREE - Execute terminal commands, install libraries, upload addons, and restart Odoo. Please rate and review!',
     'description': """
 Odoo Command Center
 ===================
@@ -163,7 +163,7 @@ Compatible: Odoo 16 & 17 (Community & Enterprise)
     'author': 'Tovfikur Rahman',
     'website': 'https://kendroo.io',
     'license': 'OPL-1',
-    'price': 13.97,
+    'price': 0.00,
     'currency': 'USD',
     'support': 'support@kendroo.io',
     'images': [
