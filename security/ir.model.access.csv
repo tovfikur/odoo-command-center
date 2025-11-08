@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_developer_terminal_log_admin,developer.terminal.log.admin,model_developer_terminal_log,group_developer_terminal_admin,1,1,1,1
+access_developer_terminal_log_system,developer.terminal.log.system,model_developer_terminal_log,base.group_system,1,1,1,1
+access_developer_addon_upload_admin,developer.addon.upload.admin,model_developer_addon_upload,group_developer_terminal_admin,1,1,1,1
+access_developer_addon_upload_system,developer.addon.upload.system,model_developer_addon_upload,base.group_system,1,1,1,1

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Addon Uploader Client Action -->
+        <record id="action_addon_uploader" model="ir.actions.client">
+            <field name="name">Addon Uploader</field>
+            <field name="tag">developer_terminal_addon_uploader</field>
+            <field name="target">current</field>
+        </record>
+
+        <!-- Addon Upload History Tree View -->
+        <record id="view_addon_upload_tree" model="ir.ui.view">
+            <field name="name">developer.addon.upload.tree</field>
+            <field name="model">developer.addon.upload</field>
+            <field name="arch" type="xml">
+                <tree string="Upload History" create="false" edit="false">
+                    <field name="create_date" string="Upload Date"/>
+                    <field name="user_id" string="User"/>
+                    <field name="name" string="Module Name"/>
+                    <field name="filename"/>
+                    <field name="file_size" string="Size (bytes)"/>
+                    <field name="state" decoration-success="state == 'success'" decoration-danger="state == 'failed'"/>
+                    <field name="upload_path"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Addon Upload History Form View -->
+        <record id="view_addon_upload_form" model="ir.ui.view">
+            <field name="name">developer.addon.upload.form</field>
+            <field name="model">developer.addon.upload</field>
+            <field name="arch" type="xml">
+                <form string="Upload Details" create="false" edit="false">
+                    <header>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="filename" readonly="1"/>
+                                <field name="file_size" readonly="1"/>
+                                <field name="upload_path" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="user_id" readonly="1"/>
+                                <field name="create_date" readonly="1"/>
+                            </group>
+                        </group>
+                        <group string="Error Message" invisible="not error_message">
+                            <field name="error_message" readonly="1" widget="text"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action: Upload History -->
+        <record id="action_addon_upload_history" model="ir.actions.act_window">
+            <field name="name">Upload History</field>
+            <field name="res_model">developer.addon.upload</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No addons uploaded yet
+                </p>
+                <p>
+                    Upload addons from the Addon Uploader to see them here.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>
